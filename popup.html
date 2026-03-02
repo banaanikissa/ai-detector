@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { width: 220px; font-family: 'Segoe UI', sans-serif; padding: 15px; background: #fff; }
+        h2 { font-size: 14px; margin: 0 0 10px 0; color: #333; text-transform: uppercase; }
+        .meter-bg { background: #eee; border-radius: 5px; height: 10px; width: 100%; }
+        .meter-fill { height: 100%; width: 0%; background: #d9534f; transition: width 1s; }
+        .info { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; font-size: 11px; color: #777; }
+    </style>
+</head>
+<body>
+    <h2>AI-Tunnistus</h2>
+    <div class="meter-bg">
+        <div id="fill" class="meter-fill"></div>
+    </div>
+    <p id="percent" style="font-size: 20px; font-weight: bold; margin: 5px 0;">0%</p>
+    <div class="info">
+        <p id="status">Analysoidaan sivun rakenteita...</p>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

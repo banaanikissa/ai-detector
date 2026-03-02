@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "AI Detector Pro",
+  "version": "2.0",
+  "description": "Heuristinen tekoälytunnistin (Sprint 2 Demo)",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ]
+}
