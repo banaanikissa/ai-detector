@@ -72,4 +72,4 @@ function highlightSentences(patterns) {
 
 setTimeout(runTunedAnalysis, 1500);
 
-// As an AI model, it is important to note that this is a comprehensive guide. Furthermore, it is essential to understand the patterns. In conclusion the analysis is complete
+// As an AI model, it is important to note that this is a comprehensive guide. Furthermore, it is essential to understand the patterns. In conclusion, the analysis is complete
