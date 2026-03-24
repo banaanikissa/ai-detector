@@ -3,22 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { width: 220px; font-family: 'Segoe UI', sans-serif; padding: 15px; background: #fff; }
-        h2 { font-size: 14px; margin: 0 0 10px 0; color: #333; text-transform: uppercase; }
-        .meter-bg { background: #eee; border-radius: 5px; height: 10px; width: 100%; }
-        .meter-fill { height: 100%; width: 0%; background: #d9534f; transition: width 1s; }
-        .info { margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; font-size: 11px; color: #777; }
+        body { width: 280px; font-family: sans-serif; padding: 15px; }
+        .meter-bg { background: #eee; border-radius: 5px; height: 12px; margin: 8px 0; }
+        .meter-fill { height: 100%; width: 0%; transition: width 1s; }
+        button { width: 100%; padding: 10px; margin-top: 15px; cursor: pointer; background: #333; color: white; border: none; border-radius: 4px; font-weight: bold; }
+        #status { font-size: 11px; color: #666; margin-top: 10px; }
+        /* Uusi tyyli yhteistulokselle */
+        #combined-result { margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; border: 1px solid #ddd; display: none; text-align: center; }
     </style>
 </head>
 <body>
-    <h2>AI-Tunnistus</h2>
-    <div class="meter-bg">
-        <div id="fill" class="meter-fill"></div>
+    <h2 style="font-size: 16px; margin: 0;">Tyylitarkastin</h2>
+    
+    <p style="font-size: 13px; margin-bottom: 5px;">Tekoälyepäily (paikallinen):</p>
+    <div class="meter-bg"><div id="fill" class="meter-fill" style="background: #5bc0de;"></div></div>
+    <p id="percent" style="font-size: 18px; font-weight: bold; margin: 0;">0%</p>
+
+    <p style="font-size: 13px; margin-bottom: 5px;">Syväanalyysi (Gemini):</p>
+    <div class="meter-bg"><div id="api-fill" class="meter-fill" style="background: #d9534f;"></div></div>
+    <p id="api-percent" style="font-size: 18px; font-weight: bold; margin: 0;">0%</p>
+
+    <button id="deepScanBtn">Päivitä syväanalyysi</button>
+    
+    <div id="combined-result">
+        <span style="font-size: 12px; color: #666;">Yhdistetty luottamusindeksi:</span>
+        <div id="combined-percent" style="font-size: 22px; font-weight: bold; color: #333;">0%</div>
     </div>
-    <p id="percent" style="font-size: 20px; font-weight: bold; margin: 5px 0;">0%</p>
-    <div class="info">
-        <p id="status">Analysoidaan sivun rakenteita...</p>
-    </div>
+
+    <p id="status" style="font-size: 11px; color: #666; margin-top: 10px;">Odotetaan analyysia...</p>
+    
     <script src="popup.js"></script>
 </body>
 </html>

@@ -1,75 +1,79 @@
-console.log("AI Detector: Tuned-versio aktivoitu!");
+window.currentTabAnalysis = {
+    localScore: 0,
+    apiScore: 0,
+    imageScore: null,
+    foundWords: 0,
+    isFlat: false,
+    textContent: ""
+};
 
-function runTunedAnalysis() {
+function runFinalAnalysis() {
     const text = document.body.innerText;
     const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
-    
-    if (sentences.length < 2) return;
+    const aiPatterns = ["as an ai", "it is important to note", "furthermore", "moreover", "in conclusion"];
+    let matches = 0;
+    aiPatterns.forEach(p => { if (text.toLowerCase().includes(p)) matches++; });
 
-    // 1. LAAJENNETTU SANA-ANALYYSI (Painotetut pisteet)
-    const aiPatterns = [
-        "as an ai", "delve into", "it is important to note", 
-        "comprehensive guide", "furthermore", "moreover", 
-        "in conclusion", "tämä on ai-tekstiä"
-    ];
-    
-    let patternScore = 0;
-    aiPatterns.forEach(p => {
-        const regex = new RegExp(p, 'gi');
-        const count = (text.match(regex) || []).length;
-        patternScore += (count * 20); // Jokainen osuma nostaa prosenttia 20%
-    });
-
-    // 2. RAKENTEELLINEN ANALYYSI (Tasapaksuus / Burstiness)
     const lengths = sentences.map(s => s.trim().split(/\s+/).length);
-    const avg = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-    const variance = lengths.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / lengths.length;
+    const avg = lengths.reduce((a, b) => a + b, 0) / (lengths.length || 1);
+    const variance = lengths.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / (lengths.length || 1);
     
-    // Herkempi varianssi-tunnistus (tekoäly < 25)
-    let structuralScore = 0;
-    if (variance < 25) {
-        structuralScore = 40; // Teksti on hyvin tasapaksua
-    } else if (variance < 40) {
-        structuralScore = 20; // Hieman epäilyttävää tasaisuutta
+    const isFlat = variance < 40;
+    const score = Math.min(10 + (matches * 30) + (isFlat ? 40 : 0), 100);
+
+    window.currentTabAnalysis.localScore = score;
+    window.currentTabAnalysis.foundWords = matches;
+    window.currentTabAnalysis.isFlat = isFlat;
+    window.currentTabAnalysis.textContent = text.substring(0, 1500);
+
+    updateUnifiedBanner();
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === "GET_TAB_DATA") {
+        sendResponse(window.currentTabAnalysis);
+    } 
+    else if (request.type === "IMAGE_LOADING") {
+        showBanner("⌛ Analysoidaan kuvaa... Odota hetki.", "#333");
     }
-
-    // 3. LOPULLINEN PISTEYTYS
-    // Aloitetaan 10% pohjalta, jos tekstiä on tarpeeksi
-    let finalScore = 10 + patternScore + structuralScore;
-    finalScore = Math.min(finalScore, 100);
-
-    // Tallennus
-    chrome.storage.local.set({ aiScore: finalScore, foundWords: Math.floor(patternScore/20) });
-
-    // Näytetään varoitukset jos score > 35%
-    if (finalScore > 35) {
-        showBanner(finalScore);
-        highlightSentences(aiPatterns);
+    else if (request.type === "IMAGE_RESULT") {
+        window.currentTabAnalysis.imageScore = request.score;
+        updateUnifiedBanner();
     }
+    else if (request.type === "DEEP_SCAN_RESULT") {
+        window.currentTabAnalysis.apiScore = request.score;
+        updateUnifiedBanner();
+    }
+});
+
+function updateUnifiedBanner() {
+    const data = window.currentTabAnalysis;
+    let msgs = [];
+
+    if (data.localScore >= 40 || data.imageScore !== null) msgs.push(`Teksti: ${data.localScore}%`);
+    if (data.imageScore !== null) msgs.push(`Kuva: ${data.imageScore}%`);
+
+    if (msgs.length === 0) return;
+
+    // Värilogiikka: Vihreä jos kuva on 0% ja teksti on matala
+    let isAi = (data.imageScore !== null && parseInt(data.imageScore) > 20) || data.localScore >= 40;
+    let color = isAi ? "#d9534f" : "#5cb85c";
+    let prefix = isAi ? "⚠️ AI-Tunnistus" : "✅ Analyysi valmis";
+
+    showBanner(`${prefix} | ${msgs.join(" | ")}`, color);
 }
 
-function showBanner(score) {
-    if (document.getElementById("ai-banner")) document.getElementById("ai-banner").remove();
-    const banner = document.createElement("div");
-    banner.id = "ai-banner";
-    banner.className = "ai-alert-banner"; // Käyttää styles.css määrittelyjä
-    banner.innerText = `⚠️ AI DETECTOR: Tekoälyn todennäköisyys ${score}%`;
-    document.body.prepend(banner);
-    document.body.style.marginTop = "50px";
+function showBanner(msg, bgColor) {
+    let b = document.getElementById("ai-banner");
+    if (!b) {
+        b = document.createElement("div");
+        b.id = "ai-banner";
+        b.style = "position:fixed; top:0; left:0; width:100%; color:white; padding:10px; z-index:9999; text-align:center; font-weight:bold; font-family:sans-serif; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background 0.5s;";
+        document.body.prepend(b);
+        document.body.style.marginTop = "45px";
+    }
+    b.style.background = bgColor;
+    b.innerText = msg;
 }
 
-function highlightSentences(patterns) {
-    const tags = document.querySelectorAll('p, li, span');
-    tags.forEach(el => {
-        patterns.forEach(p => {
-            if (el.innerText.toLowerCase().includes(p)) {
-                el.style.backgroundColor = "rgba(255, 65, 108, 0.2)";
-                el.style.borderLeft = "5px solid #ff416c";
-            }
-        });
-    });
-}
-
-setTimeout(runTunedAnalysis, 1500);
-
-// As an AI model, it is important to note that this is a comprehensive guide. Furthermore, it is essential to understand the patterns. In conclusion, the analysis is complete
+setTimeout(runFinalAnalysis, 2000);
