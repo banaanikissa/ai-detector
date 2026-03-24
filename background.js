@@ -1,4 +1,4 @@
-// Keskushermo: Hoitaa tekstin ja kuvien analyysin
+// Aivot: Hoitaa tekstin ja kuvien analyysin
 const API_KEY = "AIzaSyAlO0AKUVcDVGxgCWCDy7G-TJ0Ps5KtO-E"; 
 const MODEL_NAME = "gemini-3-flash-preview"; 
 
