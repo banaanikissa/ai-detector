@@ -1,5 +1,5 @@
 // Aivot: Hoitaa tekstin ja kuvien analyysin
-const API_KEY = "AIzaSyAlO0AKUVcDVGxgCWCDy7G-TJ0Ps5KtO-E"; 
+importScripts('secrets.js');
 const MODEL_NAME = "gemini-3-flash-preview"; 
 
 function createContextMenu() {
